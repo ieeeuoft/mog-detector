@@ -21,11 +21,11 @@ class HandNet(nn.Module):
 class FaceNet(nn.Module):
   def __init__(self):
     super(FaceNet, self).__init__()
-    self.layer1 = nn.Linear(467*3, 400)
+    self.layer1 = nn.Linear(468*3, 400)
     self.layer2 = nn.Linear(400, 100)
     self.layer3 = nn.Linear(100, 4)
   def forward(self, img):
-    flattened = img.view(-1, 467 * 3)
+    flattened = img.view(-1, 468 * 3)
     activation1 = F.relu(self.layer1(flattened))
     activation2 = F.relu(self.layer2(activation1))
     output = self.layer3(activation2)
