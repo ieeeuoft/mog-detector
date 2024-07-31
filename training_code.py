@@ -4,20 +4,22 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader, random_split
 
 from datasetmaker import CSVDataset
-from nets import HandNet, FaceNet
+from nets import HandNet, FaceNet, HandNet2
 
 import os
 import argparse
 
 # CONSTANTS
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 LEARNING_RATE = 0.001
-NUM_EPOCHS = 20
+NUM_EPOCHS = 10
 MODEL_TYPE = None
 
 def get_model(model_type):
   if model_type == 'hand' or model_type == 0:
     return HandNet()
+  elif model_type =="hand2":
+    return HandNet2()
   elif model_type == 'face' or model_type == 1:
     return FaceNet()
   else:
@@ -26,7 +28,7 @@ def get_model(model_type):
 # Load dataset
 def get_dataloaders(data_path):
   dataset = CSVDataset(data_path)
-
+  dataset.check()
   # Split dataset into training and test sets
   train_size = int(0.8 * len(dataset))
   test_size = len(dataset) - train_size
@@ -37,7 +39,7 @@ def get_dataloaders(data_path):
   return train_loader, test_loader
 
 # Define model, loss function, and optimizer
-def train_model(model_type, train_loader):
+def train_model(model_type, train_loader, test_loader):
   model = get_model(model_type)
   criterion = nn.CrossEntropyLoss()
   optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
@@ -56,7 +58,8 @@ def train_model(model_type, train_loader):
           optimizer.step()
           running_loss += loss.item()
 
-      print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {running_loss / len(train_loader):.4f}')
+      print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {running_loss / len(train_loader):.4f},', end=' ')
+      evaluate_model(model, test_loader)
   return model
 
 # Evaluation on the test set
@@ -76,15 +79,15 @@ def evaluate_model(model, test_loader):
 def save_model(model):
   if not os.path.exists('./models'):
     os.makedirs('./models')
-  torch.save(model.state_dict(), f'./models/{MODEL_TYPE}_model_{0}_epoch{NUM_EPOCHS}_lr{LEARNING_RATE}_bs_{BATCH_SIZE}.pth')
+  torch.save(model.state_dict(), f'./models/{MODEL_TYPE}_model_{0}_scaled_epoch{NUM_EPOCHS}_lr{LEARNING_RATE}_bs_{BATCH_SIZE}.pth')
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Train a hand or face gesture recognition model')
   parser.add_argument('model_type', type=str, help='Type of model to train: hand or face')
   parser.add_argument('data_path', type=str, help='Path to the CSV file containing the data')
-  parser.add_argument('--batch_size', type=int, default=32, help='Batch size for training')
+  parser.add_argument('--batch_size', type=int, default=16, help='Batch size for training')
   parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate for training')
-  parser.add_argument('--num_epochs', type=int, default=20, help='Number of epochs for training')
+  parser.add_argument('--num_epochs', type=int, default=50, help='Number of epochs for training')
   args = parser.parse_args()
 
   MODEL_TYPE = args.model_type
@@ -97,7 +100,7 @@ if __name__ == "__main__":
   train_loader, test_loader = get_dataloaders(DATA_PATH)
   print("Data loaded successfully.")
   
-  model = train_model(MODEL_TYPE, train_loader)
+  model = train_model(MODEL_TYPE, train_loader, test_loader)
   evaluate_model(model, test_loader)
   print("Model training and evaluation completed successfully.")
 

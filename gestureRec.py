@@ -71,18 +71,18 @@ with mp_hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.5) a
                 cv2.putText(image, coord_text, (cx, cy), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1, cv2.LINE_AA)
 
             # Capture the hand landmark data for the selected hand
-            with open(csv_file, 'a', newline='') as f_object:
-                writer_object = writer(f_object)
+            # with open(csv_file, 'a', newline='') as f_object:
+            #     writer_object = writer(f_object)
                 
-                row = []
-                for landmark in hand_landmarks.landmark:
-                    row.extend([landmark.x, landmark.y, landmark.z])
+            #     row = []
+            #     for landmark in hand_landmarks.landmark:
+            #         row.extend([landmark.x, landmark.y, landmark.z])
 
-                # LABEL
-                row.append(4)  # Add label column with value 1
+            #     # LABEL
+            #     row.append(4)  # Add label column with value 1
 
-                writer_object.writerow(row)
-            counter += 1
+            #     writer_object.writerow(row)
+            # counter += 1
 
         cv2.imshow('Hand Tracking', image)
 

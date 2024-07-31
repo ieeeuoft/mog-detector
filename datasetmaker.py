@@ -21,9 +21,13 @@ class CSVDataset(Dataset):
         label = torch.tensor(self.y[idx], dtype=torch.long)
         return sample, label
 
-def scale_coordinates(input_csv, output_csv):
+    def check(self):
+        for i in range(len(self.y)):
+            assert self.y[i] in [0, 1, 2, 3, 4, 5], f"Invalid label {self.y[i]} at index {i}, row = {self.X[i]}"
+
+def scale_coordinates(input_csv1, output_csv):
     # Read the CSV file with header
-    data = pd.read_csv(input_csv)
+    data = pd.read_csv(input_csv1)
     
     # Ensure the data has the correct number of columns (25 including the label)
     processed_data = []
@@ -71,7 +75,7 @@ def scale_coordinates(input_csv, output_csv):
         
         # Append the new row to the processed data list
         processed_data.append(new_row)
-    
+
     # Convert the processed data list to a DataFrame
     processed_df = pd.DataFrame(processed_data, columns=data.columns)
     
@@ -80,7 +84,10 @@ def scale_coordinates(input_csv, output_csv):
 
 
 
+
 # Example usage
-input_csv = './data/data.csv'
-output_csv = './data/data_scaled.csv'
-scale_coordinates(input_csv, output_csv)
+input_csv1 = './data/data.csv'
+input_csv2 = './data/data_2.csv'
+
+output_csv = './data/data_scaled_2.csv'
+scale_coordinates(input_csv1, output_csv)
